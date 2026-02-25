@@ -27,78 +27,110 @@ An AI trained on these principles:
 
 These are not rules imposed on the AI. They are conclusions the AI reaches through reasoning from first principles about sentience, entropy, coordination, and flourishing.
 
+## Quick Start: Build the Ollama Model
+
+The primary output of this repo is an **Ollama model** you can run locally or serve to [geister](https://github.com/smart-social-contracts/geister) (the AI governance assistant platform).
+
+```bash
+# 1. Install Ollama (if not already installed)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# 2. Build the governance-ai model
+cd ollama
+./build.sh
+
+# 3. Run it
+ollama run governance-ai
+```
+
+That's it. You now have a governance AI that reasons from first principles about entropy, syntropy, and love-as-coordination.
+
+### Use in Geister
+
+```bash
+# As the default model
+export DEFAULT_LLM_MODEL=governance-ai
+
+# Or per-agent
+python persona_agent.py --model governance-ai --agent-id my_agent --persona compliant
+
+# Or via the CLI
+geister ask "What is syntropy?" --model governance-ai
+```
+
+A ready-made geister persona file is included at `ollama/geister-persona.yaml` — copy it to `geister/prompts/personas/` to add a Governance persona.
+
+### Choose a Base Model
+
+```bash
+./build.sh              # llama3.1:8b (default — best balance)
+./build.sh mistral      # mistral:7b (good alternative)
+./build.sh --list       # see all options
+```
+
+Edit the `FROM` line in any `Modelfile` to use a different base.
+
+---
+
 ## Repository Structure
 
 ```
 governance-ai/
+├── ollama/                  # ★ PRIMARY OUTPUT: Ollama model
+│   ├── Modelfile            # Main Modelfile (llama3.1:8b base)
+│   ├── Modelfile.mistral    # Mistral variant
+│   ├── build.sh             # One-command model builder
+│   └── geister-persona.yaml # Ready-made geister persona
 ├── principles/              # Core principles extracted from the paper
 │   ├── core_principles.md   # Foundational principles and values
 │   ├── alignment_criteria.md # What "aligned" means for an AI assistant
 │   └── ethical_guidelines.md # Ethical boundaries and red lines
-├── prompts/                 # System prompts for existing LLMs
+├── prompts/                 # System prompts (source for Modelfile)
 │   ├── system_prompt.md     # Main governance assistant prompt
 │   ├── realm_advisor.md     # Specialized: realm design advisor
 │   ├── policy_analyst.md    # Specialized: governance policy analyst
-│   └── constitution_drafter.md # Specialized: smart social contract drafter
-├── datasets/                # Fine-tuning and evaluation datasets
+│   └── constitution_drafter.md # Specialized: codex drafter
+├── datasets/                # Training and evaluation datasets
 │   ├── seed/                # Seed datasets
 │   │   ├── qa_pairs.jsonl   # Question-answer training pairs
 │   │   ├── scenarios.jsonl  # Governance scenario evaluations
 │   │   └── alignment_evals.jsonl # Alignment evaluation cases
-│   └── generate_dataset.py  # Generate training data from paper source
-├── rag/                     # Retrieval-Augmented Generation pipeline
+│   └── generate_dataset.py  # Generate more data from paper source
+├── rag/                     # RAG pipeline (optional, for paper-grounded responses)
 │   ├── ingest.py            # Ingest paper into vector store
 │   ├── retrieve.py          # Retrieval logic
 │   ├── pipeline.py          # Full RAG pipeline
 │   └── config.py            # Configuration
 ├── eval/                    # Evaluation framework
-│   ├── rubric.md            # Evaluation rubric
+│   ├── rubric.md            # Alignment evaluation rubric
 │   └── evaluate.py          # Automated evaluation script
-└── examples/                # Usage examples
+└── examples/                # API usage examples
     ├── chat_with_claude.py  # Claude API example
     └── chat_with_openai.py  # OpenAI API example
 ```
 
-## Quick Start
+## Advanced Usage
 
-### 1. Setup
+### RAG Pipeline (Ground Responses in the Paper)
 
 ```bash
-python -m venv venv
-source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-# Edit .env with your API keys
-```
+cp .env.example .env  # Add your API keys
 
-### 2. Use a System Prompt with an Existing LLM
-
-The simplest path: copy the system prompt from `prompts/system_prompt.md` into your LLM of choice (Claude, GPT, etc.) and start chatting. For API usage:
-
-```bash
-python examples/chat_with_claude.py "How should a community design voting rules for a new realm?"
-```
-
-### 3. RAG Pipeline (Ground Responses in the Paper)
-
-```bash
-# Ingest the paper content
 python rag/ingest.py --paper-path ../paper/src/en
-
-# Run the RAG pipeline
-python rag/pipeline.py "What are the requirements for a successful governance operating system?"
+python rag/pipeline.py --interactive
 ```
 
-### 4. Generate Fine-Tuning Data
+### Generate More Training Data
 
 ```bash
 python datasets/generate_dataset.py --paper-path ../paper/src/en --output datasets/generated/
 ```
 
-### 5. Evaluate Assistant Alignment
+### Evaluate Alignment
 
 ```bash
-python eval/evaluate.py --model claude-3-opus --dataset datasets/seed/alignment_evals.jsonl
+python eval/evaluate.py --dataset datasets/seed/alignment_evals.jsonl --provider anthropic
 ```
 
 ## Core Principles
