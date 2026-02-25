@@ -1,0 +1,21 @@
+# LLM APIs
+anthropic>=0.39.0
+openai>=1.50.0
+
+# RAG pipeline
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-openai>=0.2.0
+langchain-anthropic>=0.3.0
+chromadb>=0.5.0
+tiktoken>=0.7.0
+
+# Data processing
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+rich>=13.0.0
+
+# Evaluation
+numpy>=1.26.0
+pandas>=2.2.0
+tqdm>=4.66.0
